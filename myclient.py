@@ -34,4 +34,6 @@ class MyClient(BotUtility, Client):
         await channel.send(f"Start cron: {func}")
         await eval(f"self.cf.{func}(channel)")
 
+        # Close
+        await self.close()
         exit()

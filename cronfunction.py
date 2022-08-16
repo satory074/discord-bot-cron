@@ -2,6 +2,8 @@ import json
 import os
 import sys
 
+sys.path.append(os.getcwd())
+
 import copy
 from datetime import timedelta
 from typing import Any, Optional, Union
@@ -11,8 +13,6 @@ from discord import Guild, Member, Message, TextChannel
 
 from botutility import BotUtility
 from mydropbox import MyDropbox
-
-sys.path.append(os.getcwd())
 
 
 class CronFunction(BotUtility, MyDropbox):
@@ -50,7 +50,7 @@ class CronFunction(BotUtility, MyDropbox):
                         output[av["id"]] = dfv_
 
                 # number of attachments
-                await channel.send((file_, acount))
+                await channel.send((file_, acount))  # type: ignore
 
         # output
         with open(OUTPUTPATH, mode="w") as f:
@@ -65,13 +65,8 @@ class CronFunction(BotUtility, MyDropbox):
             # Open log file
             dlog: dict[Union[int, str], Any] = {}
 
-            # Get history message
-            channel_messages: list[Message] = await ch.history(
-                oldest_first=True
-            ).flatten()
-
             # Create dict of discord.message
-            for message in channel_messages:
+            async for message in ch.history(oldest_first=True):
                 # attachment
                 d_a: dict = {}
                 if message.attachments:
@@ -90,20 +85,20 @@ class CronFunction(BotUtility, MyDropbox):
                     "author": {
                         "name": message.author.name,  # type: ignore
                         "discriminator": message.author.discriminator,  # type: ignore
-                        "avatar_url": str(message.author.avatar_url),  # type: ignore
+                        "avatar": str(message.author.avatar),  # type: ignore
                         "bot": message.author.bot,  # type: ignore
                         "display_name": message.author.display_name,
                         "mention": message.author.mention,
                     },
                     "content": message.content,
                     "channel": {
-                        "name": message.channel.name,
+                        "name": message.channel.name,  # type: ignore
                         "id": message.channel.id,
-                        "category_id": message.channel.category_id
-                        if message.channel.category
+                        "category_id": message.channel.category_id  # type: ignore
+                        if message.channel.category  # type: ignore
                         else "",
-                        "category_name": message.channel.category.name
-                        if message.channel.category
+                        "category_name": message.channel.category.name  # type: ignore
+                        if message.channel.category  # type: ignore
                         else "",
                     },
                     "attachments": d_a,
